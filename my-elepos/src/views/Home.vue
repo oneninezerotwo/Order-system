@@ -9,23 +9,27 @@
               <el-table-column prop="count" label="数量"></el-table-column>
               <el-table-column prop="price" label="金额"></el-table-column>
               <el-table-column label="操作" width="90" fixed="right">
-                <template>
-                    <el-button type="text" size="small">删除</el-button>
-                    <el-button type="text" size="small">增加</el-button>
+                <template scope="scope">
+                  <el-button type="text" size="small" @click="goodsDel(scope.row)">删除</el-button>
+                  <el-button type="text" size="small" @click="increase(scope.row)">增加</el-button>
                 </template>
               </el-table-column>
             </el-table>
+            <div class="boxdiv">
+              <p class="boxdivP">
+                <small>总量：</small>
+                <span v-text="allAmount+'份'">0份</span>
+              </p>
+              <p class="boxdivP">
+                <small>总额：</small>
+                <span v-text="allMoney+'元'">0元</span>
+              </p>
+            </div>
             <div class="close_btn">
               <el-button type="warning" round>挂起</el-button>
-              <el-button type="danger" round>删除</el-button>
+              <el-button type="danger" round @click="DelAll()">删除</el-button>
               <el-button type="success" round>结账</el-button>
             </div>
-            <el-table>
-              <el-table-column prop="goodsName" label="商品名称"></el-table-column>
-              <el-table-column prop="count" label="数量"></el-table-column>
-              <el-table-column prop="price" label="金额"></el-table-column>
-              <el-table-column label="操作"></el-table-column>
-            </el-table>
           </el-tab-pane>
           <el-tab-pane label="挂单">挂单</el-tab-pane>
           <el-tab-pane label="外卖">外卖</el-tab-pane>
@@ -35,7 +39,7 @@
         <div class="RgoodsInfo">
           <div class="title">常用商品</div>
           <div class="RgoodsList">
-            <ul v-for="(item,idx) in goodslists" :key="idx">
+            <ul @click="addOrderList(item)" v-for="(item,idx) in goodslists" :key="idx">
               <li>
                 <span v-text="item.goodsName" :id="item.goodsId">辣鸡粉</span>
                 <span class="o_price" v-text="'￥'+item.price+'元'">￥18元</span>
@@ -47,203 +51,257 @@
           <el-tab-pane label="汤粉">
             <div>
               <ul class="cookList">
-                <li v-for="(item,idx) in goodsPink" :key="idx">
-                  <span class="foodImg"><img :src="item.goodsimg" alt=""></span>
+                <li @click="addOrderList(item)" v-for="(item,idx) in goods0Pink" :key="idx">
+                  <span class="foodImg">
+                    <img :src="item.goodsimg" alt>
+                  </span>
                   <span class="foodName" v-text="item.goodsName"></span>
                   <span class="foodPrice" v-text="'￥'+item.price+'元'"></span>
                 </li>
               </ul>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="小吃">小吃</el-tab-pane>
-          <el-tab-pane label="套饭">套饭</el-tab-pane>
-          <el-tab-pane label="炒粉">炒粉</el-tab-pane>
-          <el-tab-pane label="汤类">汤类</el-tab-pane>
+          <el-tab-pane label="小吃">
+            <ul class="cookList">
+              <li @click="addOrderList(item)" v-for="(item,idx) in goods1Pink" :key="idx">
+                <span class="foodImg">
+                  <img :src="item.goodsimg" alt>
+                </span>
+                <span class="foodName" v-text="item.goodsName"></span>
+                <span class="foodPrice" v-text="'￥'+item.price+'元'"></span>
+              </li>
+            </ul>
+          </el-tab-pane>
+          <el-tab-pane label="套饭">
+            <ul class="cookList">
+              <li @click="addOrderList(item)" v-for="(item,idx) in goods2Pink" :key="idx">
+                <span class="foodImg">
+                  <img :src="item.goodsimg" alt>
+                </span>
+                <span class="foodName" v-text="item.goodsName"></span>
+                <span class="foodPrice" v-text="'￥'+item.price+'元'"></span>
+              </li>
+            </ul>
+          </el-tab-pane>
+          <el-tab-pane label="炒粉">
+            <ul class="cookList">
+              <li @click="addOrderList(item)" v-for="(item,idx) in goods3Pink" :key="idx">
+                <span class="foodImg">
+                  <img :src="item.goodsimg" alt>
+                </span>
+                <span class="foodName" v-text="item.goodsName"></span>
+                <span class="foodPrice" v-text="'￥'+item.price+'元'"></span>
+              </li>
+            </ul>
+          </el-tab-pane>
+          <el-tab-pane label="汤类">
+            <ul class="cookList">
+              <li @click="addOrderList(item)" v-for="(item,idx) in goods4Pink" :key="idx">
+                <span class="foodImg">
+                  <img :src="item.goodsimg" alt>
+                </span>
+                <span class="foodName" v-text="item.goodsName"></span>
+                <span class="foodPrice" v-text="'￥'+item.price+'元'"></span>
+              </li>
+            </ul>
+          </el-tab-pane>
         </el-tabs>
-      <el-col>
-        产品栏
       </el-col>
+      <el-col>产品栏</el-col>
     </el-row>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
-  name: 'hello',
-  data(){
+  name: "hello",
+  data() {
     return {
-      goodsData:[{
-        goodsName:'牛腩粉',
-        count: 1 ,
-        price: 15
-      },{
-        goodsName:'辣鸡粉',
-        count: 1 ,
-        price: 18
-      },{
-        goodsName:'粉皮糍',
-        count: 1 ,
-        price: 5
-      },{
-        goodsName:'烂锅粉',
-        count: 1 ,
-        price: 8
-      }],
-      goodslists:[{
-        goodsName:'辣鸡粉',
-        goodsId:'1',
-        price:'18'
-      },
-      {
-        goodsName:'烂锅粉',
-        goodsId:'2',
-        price:'8'
-      },{
-        goodsName:'粉皮糍',
-        goodsId:'3',
-        price:'5'
-      },{
-        goodsName:'牛腩粉',
-        goodsId:'4',
-        price:'15'
-      },{
-        goodsName:'叉烧粉',
-        goodsId:'5',
-        price:'14'
-      },{
-        goodsName:'瘦肉粉',
-        goodsId:'6',
-        price:'13'
-      },{
-        goodsName:'瘦肉菜心汤',
-        goodsId:'7',
-        price:'20'
-      },{
-        goodsName:'红烧牛肉饭',
-        goodsId:'8',
-        price:'22'
-      },{
-        goodsName:'牛欢喜',
-        goodsId:'8',
-        price:'30'
-      },{
-        goodsName:'男人加油站',
-        goodsId:'9',
-        price:'200'
-      },{
-        goodsName:'女人美容院',
-        goodsId:'10',
-        price:'180'
-      },{
-        goodsName:'嗨文',
-        goodsId:'11',
-        price:'0'
-      },],
-      goodsPink:[{
-        goodsimg:'https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1560320490&di=0e4f3a4ae34e4c2dd7f6246a8f907112&src=http://pic2.cxtuku.com/00/00/94/b12128744d3d.jpg',
-        goodsName:'牛腩粉',
-        goodsId:'1',
-        price:'15'
-      },{
-        goodsimg:'https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2313767746,1616788130&fm=26&gp=0.jpg',
-        goodsName:'瘦肉粉',
-        goodsId:'2',
-        price:'13'
-      },{
-        goodsimg:'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1560928015&di=acad0c3bce43554543a331954c9fe01b&imgtype=jpg&er=1&src=http%3A%2F%2Fqcloud.dpfile.com%2Fpc%2Fhuoxcz2JElf_gtcFa916I8tFu1MF2MZFNFTEuPA2JVuViAhwi3EnjQ1hCPpfw-X0TYGVDmosZWTLal1WbWRW3A.jpg',
-        goodsName:'叉烧粉',
-        goodsId:'3',
-        price:'14'
-      },{
-        goodsimg:'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2807696486,3760737423&fm=26&gp=0.jpg',
-        goodsName:'辣鸡粉',
-        goodsId:'4',
-        price:'18'
-      }]
-    }
+      goodsData: [],
+      goodslists: [],
+      goods0Pink: [],
+      goods1Pink: [],
+      goods2Pink: [],
+      goods3Pink: [],
+      goods4Pink: [],
+      allMoney:0,
+      allAmount:0
+    };
+  },
+  created() {
+    axios
+      .get(
+        "https://easy-mock.com/mock/5cff49e145cab05d0c26a969/example/Ordersystem"
+      )
+      .then(reponse => {
+        this.goodslists = reponse.data.goodslists;
+        this.goods0Pink = reponse.data.goods0Pink;
+        this.goods1Pink = reponse.data.goods1Pink;
+        this.goods2Pink = reponse.data.goods2Pink;
+        this.goods3Pink = reponse.data.goods3Pink;
+        this.goods4Pink = reponse.data.goods4Pink;
+      })
+      .catch(error => {
+        alert("草！竟然报错！找张丰裕解决！");
+      });
   },
   mounted() {
     var orderH = document.body.clientHeight;
-    document.getElementById('order-list').style.height = orderH + "px";
-    document.getElementById('order-list').style.paddingLeft = 5 +"px";
+    document.getElementById("order-list").style.height = orderH + "px";
+    document.getElementById("order-list").style.paddingLeft = 5 + "px";
   },
-}
+  methods: {
+    addOrderList(goods) {
+      this.allMoney = 0;
+      this.allAmount = 0;
+      let isHave = false;
+      for (let i = 0; i < this.goodsData.length; i++) {
+        if (this.goodsData[i].goodsId == goods.goodsId) {
+          isHave = true;
+        }
+      }
+      if (isHave) {
+        let arr = this.goodsData.filter(a => a.goodsId == goods.goodsId);
+        arr[0].count++;
+        arr[0].price = arr[0].count * goods.price;
+
+      } else {
+        let newGoods = {
+          goodsId: goods.goodsId,
+          goodsName: goods.goodsName,
+          price: goods.price,
+          count: 1
+        };
+        this.goodsData.push(newGoods);
+      }
+      this.goodsData.forEach((item)=>{
+        this.allMoney += item.price;
+        this.allAmount += item.count;
+      })
+    },
+    increase(res){
+      let i = res.count;
+      let a = res.price / i;
+      res.count ++;
+      res.price = res.count * a;
+      this.getAllMoney();
+    },
+    goodsDel(res){
+      if(res.count == 1){
+        this.goodsData = this.goodsData.filter(a=>a.goodsId != res.goodsId);
+        this.getAllMoney();
+      }else{
+        console.log(res);
+        let i = res.count;
+        let a = res.price / i;
+        res.count --;
+        res.price = res.count * a;
+        this.getAllMoney();
+      }
+    },
+    getAllMoney(){
+      this.allMoney = 0;
+      this.allAmount = 0;
+      this.goodsData.forEach((item)=>{
+        this.allMoney += item.price;
+        this.allAmount += item.count;
+      })
+    },
+    DelAll(){
+      this.goodsData = [];
+      this.getAllMoney();
+    }
+  }
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.pos-order{
-  border-right:1px solid #ccc;
+.pos-order {
+  border-right: 1px solid #ccc;
 }
-.close_btn{
-  margin-top:15px;
-  text-align: center
+.close_btn {
+  margin-top: 15px;
+  text-align: center;
 }
-.title{
+.title {
   height: 20px;
-  border-bottom: 1px solid #D3DCE6;
-  background-color: #F9FAFC;
+  border-bottom: 1px solid #d3dce6;
+  background-color: #f9fafc;
   padding: 10px;
   text-align: left;
 }
-.RgoodsList ul li{
+.RgoodsList ul li {
   list-style: none;
-  float:left;
+  float: left;
   border: 1px solid #ccc;
   padding: 10px;
-  margin:10px;
+  margin: 10px;
   background: #fff;
   width: 140px;
   font-size: 15px;
-  position: relative
+  position: relative;
 }
-.o_price{
-  color:#58bc58;
+.o_price {
+  color: #58bc58;
   position: absolute;
-  right:10px;
+  right: 10px;
 }
-.goodsType{
-  clear:both;
-  margin-left:5px;
+.goodsType {
+  clear: both;
+  margin-left: 5px;
 }
-.cookList li{
+.cookList li {
   list-style: none;
   width: 25%;
-  border: 1px solid #E5E9F2;
+  border: 1px solid #e5e9f2;
   height: auot;
   overflow: hidden;
   background-color: #fff;
   padding: 2px;
   float: left;
-  margin:2px;
+  margin: 2px;
   position: relative;
 }
-.cookList li span{
+.cookList li span {
   display: block;
-  float:left;
+  float: left;
 }
-.foodImg{
-  width:40%;
-  height:90px
+.foodImg {
+  width: 40%;
+  height: 90px;
 }
-.foodImg img{
-  width:130%;
-  height:90px
+.foodImg img {
+  width: 130%;
+  height: 90px;
 }
-.foodName{
-  font-size: 18px;
+.foodName {
+  font-size: 15px;
   padding-left: 10px;
-  color:brown;
+  color: brown;
   position: absolute;
-  top:10px;
-  right:20px;
+  top: 10px;
+  right: 15px;
 }
-.foodPrice{
+.foodPrice {
   font-size: 16px;
   padding-left: 10px;
   padding-top: 10px;
-  position:absolute;
-  right:25px;
-  bottom:25px;
+  position: absolute;
+  right: 25px;
+  bottom: 25px;
+}
+.boxdiv {
+  height: auto;
+  overflow: hidden;
+  border-top: 1px solid #d3dce6;
+  background: #d3dce6;
+  text-align: center;
+}
+.boxdivP{
+  width:50%;
+  float:left;
+  color:deeppink;
 }
 </style>
