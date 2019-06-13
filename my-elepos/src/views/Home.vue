@@ -1,46 +1,13 @@
 <template>
   <div class="hello">
     <el-row>
-      <el-col :span="7" class="pos-order" id="order-list">
-        <el-tabs>
-          <el-tab-pane label="点餐">
-            <el-table border style="width:100%" :data="goodsData">
-              <el-table-column prop="goodsName" label="商品名称"></el-table-column>
-              <el-table-column prop="count" label="数量"></el-table-column>
-              <el-table-column prop="price" label="金额"></el-table-column>
-              <el-table-column label="操作" width="90" fixed="right">
-                <template scope="scope">
-                  <el-button type="text" size="small" @click="goodsDel(scope.row)">删除</el-button>
-                  <el-button type="text" size="small" @click="increase(scope.row)">增加</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-            <div class="boxdiv">
-              <p class="boxdivP">
-                <small>总量：</small>
-                <span v-text="allAmount+'份'">0份</span>
-              </p>
-              <p class="boxdivP">
-                <small>总额：</small>
-                <span v-text="allMoney+'元'">0元</span>
-              </p>
-            </div>
-            <div class="close_btn">
-              <el-button type="warning" round>挂起</el-button>
-              <el-button type="danger" round @click="DelAll()">删除</el-button>
-              <el-button type="success" round>结账</el-button>
-            </div>
-          </el-tab-pane>
-          <el-tab-pane label="挂单">挂单</el-tab-pane>
-          <el-tab-pane label="外卖">外卖</el-tab-pane>
-        </el-tabs>
-      </el-col>
+      <Information/>
       <el-col :span="17">
         <div class="RgoodsInfo">
           <div class="title">常用商品</div>
-          <div class="RgoodsList">
-            <ul @click="addOrderList(item)" v-for="(item,idx) in goodslists" :key="idx">
-              <li>
+          <div class="RgoodsList" >
+            <ul  v-for="(item,idx) in datas.goodslists" :key="idx">
+              <li @click="chuandata(item)">
                 <span v-text="item.goodsName" :id="item.goodsId">辣鸡粉</span>
                 <span class="o_price" v-text="'￥'+item.price+'元'">￥18元</span>
               </li>
@@ -51,7 +18,7 @@
           <el-tab-pane label="汤粉">
             <div>
               <ul class="cookList">
-                <li @click="addOrderList(item)" v-for="(item,idx) in goods0Pink" :key="idx">
+                <li   @click="chuandata(item)" v-for="(item,idx) in datas.goods0Pink" :key="idx">
                   <span class="foodImg">
                     <img :src="item.goodsimg" alt>
                   </span>
@@ -63,7 +30,7 @@
           </el-tab-pane>
           <el-tab-pane label="小吃">
             <ul class="cookList">
-              <li @click="addOrderList(item)" v-for="(item,idx) in goods1Pink" :key="idx">
+              <li  @click="chuandata(item)" v-for="(item,idx) in datas.goods1Pink" :key="idx">
                 <span class="foodImg">
                   <img :src="item.goodsimg" alt>
                 </span>
@@ -74,7 +41,7 @@
           </el-tab-pane>
           <el-tab-pane label="套饭">
             <ul class="cookList">
-              <li @click="addOrderList(item)" v-for="(item,idx) in goods2Pink" :key="idx">
+              <li  @click="chuandata(item)" v-for="(item,idx) in datas.goods2Pink" :key="idx">
                 <span class="foodImg">
                   <img :src="item.goodsimg" alt>
                 </span>
@@ -85,7 +52,7 @@
           </el-tab-pane>
           <el-tab-pane label="炒粉">
             <ul class="cookList">
-              <li @click="addOrderList(item)" v-for="(item,idx) in goods3Pink" :key="idx">
+              <li  @click="chuandata(item)" v-for="(item,idx) in datas.goods3Pink" :key="idx">
                 <span class="foodImg">
                   <img :src="item.goodsimg" alt>
                 </span>
@@ -96,7 +63,7 @@
           </el-tab-pane>
           <el-tab-pane label="汤类">
             <ul class="cookList">
-              <li @click="addOrderList(item)" v-for="(item,idx) in goods4Pink" :key="idx">
+              <li  @click="chuandata(item)" v-for="(item,idx) in datas.goods4Pink" :key="idx">
                 <span class="foodImg">
                   <img :src="item.goodsimg" alt>
                 </span>
@@ -113,38 +80,26 @@
 </template>
 
 <script>
-import axios from "axios";
+import Information from '../components/Information.vue'
+// mapGetters获取数据
+// mapMutations获取方法
+import { mapActions,mapMutations,mapGetters } from 'vuex'
+// import axios from "axios";
 export default {
   name: "hello",
-  data() {
-    return {
-      goodsData: [],
-      goodslists: [],
-      goods0Pink: [],
-      goods1Pink: [],
-      goods2Pink: [],
-      goods3Pink: [],
-      goods4Pink: [],
-      allMoney:0,
-      allAmount:0
-    };
+  components: {
+    Information
   },
   created() {
-    axios
-      .get(
-        "https://easy-mock.com/mock/5cff49e145cab05d0c26a969/example/Ordersystem"
-      )
-      .then(reponse => {
-        this.goodslists = reponse.data.goodslists;
-        this.goods0Pink = reponse.data.goods0Pink;
-        this.goods1Pink = reponse.data.goods1Pink;
-        this.goods2Pink = reponse.data.goods2Pink;
-        this.goods3Pink = reponse.data.goods3Pink;
-        this.goods4Pink = reponse.data.goods4Pink;
-      })
-      .catch(error => {
-        alert("草！竟然报错！找张丰裕解决！");
-      });
+    // 生命周期执行获取仓库数据方法
+    this.getdata();
+  },
+  computed: {
+    // 获取仓库数据
+    ...mapGetters([
+      'datas'
+    ]),
+    
   },
   mounted() {
     var orderH = document.body.clientHeight;
@@ -152,66 +107,13 @@ export default {
     document.getElementById("order-list").style.paddingLeft = 5 + "px";
   },
   methods: {
-    addOrderList(goods) {
-      this.allMoney = 0;
-      this.allAmount = 0;
-      let isHave = false;
-      for (let i = 0; i < this.goodsData.length; i++) {
-        if (this.goodsData[i].goodsId == goods.goodsId) {
-          isHave = true;
-        }
-      }
-      if (isHave) {
-        let arr = this.goodsData.filter(a => a.goodsId == goods.goodsId);
-        arr[0].count++;
-        arr[0].price = arr[0].count * goods.price;
-
-      } else {
-        let newGoods = {
-          goodsId: goods.goodsId,
-          goodsName: goods.goodsName,
-          price: goods.price,
-          count: 1
-        };
-        this.goodsData.push(newGoods);
-      }
-      this.goodsData.forEach((item)=>{
-        this.allMoney += item.price;
-        this.allAmount += item.count;
-      })
-    },
-    increase(res){
-      let i = res.count;
-      let a = res.price / i;
-      res.count ++;
-      res.price = res.count * a;
-      this.getAllMoney();
-    },
-    goodsDel(res){
-      if(res.count == 1){
-        this.goodsData = this.goodsData.filter(a=>a.goodsId != res.goodsId);
-        this.getAllMoney();
-      }else{
-        console.log(res);
-        let i = res.count;
-        let a = res.price / i;
-        res.count --;
-        res.price = res.count * a;
-        this.getAllMoney();
-      }
-    },
-    getAllMoney(){
-      this.allMoney = 0;
-      this.allAmount = 0;
-      this.goodsData.forEach((item)=>{
-        this.allMoney += item.price;
-        this.allAmount += item.count;
-      })
-    },
-    DelAll(){
-      this.goodsData = [];
-      this.getAllMoney();
-    }
+    // 获取仓库方法
+    ...mapActions([
+      'getdata'
+    ]),
+    ...mapMutations([
+      'chuandata'
+    ])
   }
 };
 </script>
